@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teen Patti (3 Patti) Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #006400;
+            color: white;
+            padding: 20px;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .game-table {
+            background: #0b5d0b;
+            border-radius: 200px;
+            padding: 20px;
+            position: relative;
+            height: 500px;
+            border: 10px solid #7c4c16;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        .player {
+            position: absolute;
+            width: 180px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .player.active {
+            box-shadow: 0 0 15px 5px gold;
+        }
+        
+        .player.folded .cards {
+            opacity: 0.3;
+        }
+        
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        
+        .player-chips {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .player-bet {
+            font-size: 0.8rem;
+            color: gold;
+        }
+        
+        .player-0 {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .player-1 {
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
+        
+        .player-2 {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .player-3 {
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+        }
+        
+        .cards {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .card {
+            width: 40px;
+            height: 60px;
+            background: white;
+            border-radius: 5px;
+            margin: 0 2px;
+            position: relative;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .card.facedown {
+            background: linear-gradient(45deg, #b33, #933);
+            color: transparent;
+        }
+        
+        .hidden-cards .card:not(.facedown) {
+            background: linear-gradient(45deg, #b33, #933);
+            color: transparent;
+        }
+        
+        .spades, .clubs {
+            color: black;
+        }
+        
+        .hearts, .diamonds {
+            color: red;
+        }
+        
+        .card-suit {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            font-size: 0.7rem;
+        }
+        
+        .card-value {
+            font-size: 1rem;
+        }
+        
+        .pot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .game-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #d4af37;
+            color: #111;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        button:hover {
+            background: #f1c40f;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #7f7f7f;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .bet-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        #bet-amount {
+            width: 100px;
+            text-align: center;
+            font-size: 1rem;
+            padding: 5px;
+        }
+        
+        .game-message {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 30px;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 1px 1px 2px black;
+        }
+        
+        .log-container {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .log {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .hand-ranking {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: gold;
+        }
+        
+        #new-game-btn {
+            background: #2ecc71;
+        }
+        
+        #new-game-btn:hover {
+            background: #27ae60;
+        }
+
+        .show-btn {
+            background: #9b59b6;
+        }
+        
+        .show-btn:hover {
+            background: #8e44ad;
+        }
+
+        #fold-btn {
+            background: #e74c3c;
+        }
+        
+        #fold-btn:hover {
+            background: #c0392b;
+        }
+
+        #check-btn, #call-btn {
+            background: #3498db;
+        }
+        
+        #check-btn:hover, #call-btn:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .game-table {
+                height: 400px;
+            }
+            
+            .player {
+                width: 140px;
+                height: 100px;
+            }
+            
+            .card {
+                width: 30px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Teen Patti</h1>
+        
+        <div class="game-table">
+            <div class="player player-0" id="player-0">
+                <div class="player-name">You</div>
+                <div class="player-chips">Chips: ₹1000</div>
+                <div class="player-bet">Bet: ₹0</div>
+                <div class="cards" id="player-0-cards"></div>
+                <div class="hand-ranking" id="player-0-ranking"></div>
+            </div>
+            
+            <div class="player player-1" id="player-1">
+                <div class="player-name">Bot 1</div>
+                <div class="player-chips">Chips: ₹1000</div>
+                <div class="player-bet">Bet: ₹0</div>
+                <div class="cards hidden-cards" id="player-1-cards"></div>
+            </div>
+            
+            <div class="player player-2" id="player-2">
+                <div class="player-name">Bot 2</div>
+                <div class="player-chips">Chips: ₹1000</div>
+                <div class="player-bet">Bet: ₹0</div>
+                <div class="cards hidden-cards" id="player-2-cards"></div>
+            </div>
+            
+            <div class="player player-3" id="player-3">
+                <div class="player-name">Bot 3</div>
+                <div class="player-chips">Chips: ₹1000</div>
+                <div class="player-bet">Bet: ₹0</div>
+                <div class="cards hidden-cards" id="player-3-cards"></div>
+            </div>
+            
+            <div class="pot" id="pot">
+                <div>Pot: ₹0</div>
+                <div>Bet: ₹0</div>
+            </div>
+        </div>
+        
+        <div class="game-message" id="game-message">Welcome to Teen Patti! Press "New Game" to start.</div>
+        
+        <div class="game-controls">
+            <button id="new-game-btn">New Game</button>
+            <button id="fold-btn" disabled>Fold</button>
+            <button id="call-btn" disabled>Call</button>
+            <button id="show-btn" class="show-btn" disabled>Show</button>
+        </div>
+        
+        <div class="bet-controls">
+            <button id="decrease-bet-btn" disabled>-</button>
+            <input type="number" id="bet-amount" min="0" value="0" disabled>
+            <button id="increase-bet-btn" disabled>+</button>
+            <button id="bet-btn" disabled>Bet/Raise</button>
+        </div>
+        
+        <div class="log-container">
+            <div id="game-log"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Constants
+            const BOOT_AMOUNT = 10;
+            const CARD_SUITS = ['♠', '♥', '♦', '♣'];
+            const CARD_VALUES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            const PLAYER_COUNT = 4;
+            const CARDS_PER_PLAYER = 3;
+            
+            // Game state
+            let deck = [];
+            let players = [];
+            let currentPlayer = 0;
+            let pot = 0;
+            let currentBet = 0;
+            let gameActive = false;
+            let gameStarted = false;
+            let minBet = BOOT_AMOUNT;
+            let showdown = false;
+            let lastRaisePlayer = -1;
+            
+            // DOM Elements
+            const newGameBtn = document.getElementById('new-game-btn');
+            const foldBtn = document.getElementById('fold-btn');
+            const callBtn = document.getElementById('call-btn');
+            const showBtn = document.getElementById('show-btn');
+            const decreaseBetBtn = document.getElementById('decrease-bet-btn');
+            const increaseBetBtn = document.getElementById('increase-bet-btn');
+            const betAmountInput = document.getElementById('bet-amount');
+            const betBtn = document.getElementById('bet-btn');
+            const gameMessageDiv = document.getElementById('game-message');
+            const gameLogDiv = document.getElementById('game-log');
+            const potDiv = document.getElementById('pot');
+            
+            // Initialize players
+            function initializePlayers() {
+                players = [];
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    players.push({
+                        id: i,
+                        name: i === 0 ? 'You' : `Bot ${i}`,
+                        chips: 1000,
+                        cards: [],
+                        bet: 0,
+                        totalBet: 0,
+                        folded: false,
+                        isBot: i !== 0,
+                        seen: i === 0 // player always sees their cards
+                    });
+                }
+            }
+            
+            // Create a new deck of cards
+            function createDeck() {
+                deck = [];
+                for (const suit of CARD_SUITS) {
+                    for (const value of CARD_VALUES) {
+                        deck.push({ suit, value });
+                    }
+                }
+                return deck;
+            }
+            
+            // Shuffle the deck using Fisher-Yates algorithm
+            function shuffleDeck(deck) {
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+                return deck;
+            }
+            
+            // Deal cards to players
+            function dealCards() {
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    players[i].cards = [];
+                    for (let j = 0; j < CARDS_PER_PLAYER; j++) {
+                        players[i].cards.push(deck.pop());
+                    }
+                }
+            }
+            
+            // Render player's cards
+            function renderCards() {
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    const playerCardsDiv = document.getElementById(`player-${i}-cards`);
+                    playerCardsDiv.innerHTML = '';
+                    
+                    if (players[i].folded) {
+                        continue;
+                    }
+                    
+                    for (let j = 0; j < players[i].cards.length; j++) {
+                        const card = players[i].cards[j];
+                        const cardDiv = document.createElement('div');
+                        cardDiv.className = 'card';
+                        
+                        if (i === 0 || (showdown && !players[i].folded)) {
+                            // Show your cards or all cards during showdown
+                            cardDiv.innerHTML = `
+                                <span class="card-value ${card.suit === '♥' || card.suit === '♦' ? 'hearts' : 'spades'}">${card.value}</span>
+                                <span class="card-suit ${card.suit === '♥' || card.suit === '♦' ? 'hearts' : 'spades'}">${card.suit}</span>
+                            `;
+                        } else {
+                            // Hide other players' cards
+                            cardDiv.className += ' facedown';
+                        }
+                        
+                        playerCardsDiv.appendChild(cardDiv);
+                    }
+                }
+                
+                // Update player hand ranking
+                if (players[0].cards.length > 0) {
+                    const handRanking = getHandRanking(players[0].cards);
+                    document.getElementById('player-0-ranking').textContent = handRanking.name;
+                }
+            }
+            
+            // Update game UI
+            function updateUI() {
+                // Update pot amount
+                potDiv.innerHTML = `<div>Pot: ₹${pot}</div><div>Bet: ₹${currentBet}</div>`;
+                
+                // Update each player's info
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    const playerDiv = document.getElementById(`player-${i}`);
+                    const chipsDiv = playerDiv.querySelector('.player-chips');
+                    const betDiv = playerDiv.querySelector('.player-bet');
+                    
+                    chipsDiv.textContent = `Chips: ₹${players[i].chips}`;
+                    betDiv.textContent = `Bet: ₹${players[i].bet}`;
+                    
+                    // Mark current player
+                    playerDiv.classList.toggle('active', i === currentPlayer && gameActive);
+                    
+                    // Mark folded player
+                    playerDiv.classList.toggle('folded', players[i].folded);
+                }
+                
+                // Update controls
+                updateControls();
+            }
+            
+            // Update player controls based on game state
+            function updateControls() {
+                const isPlayerTurn = currentPlayer === 0 && gameActive;
+                const player = players[0];
+                
+                foldBtn.disabled = !isPlayerTurn || player.folded;
+                callBtn.disabled = !isPlayerTurn || player.folded || player.totalBet >= currentBet;
+                betBtn.disabled = !isPlayerTurn || player.folded || player.chips <= 0;
+                decreaseBetBtn.disabled = !isPlayerTurn || player.folded;
+                increaseBetBtn.disabled = !isPlayerTurn || player.folded;
+                betAmountInput.disabled = !isPlayerTurn || player.folded;
+                
+                // Only enable show button if at least one round of betting is complete
+                showBtn.disabled = !isPlayerTurn || player.folded || !gameStarted || currentBet === 0;
+                
+                if (isPlayerTurn) {
+                    const minRaise = currentBet * 2;
+                    const maxBet = Math.min(player.chips, pot * 2);
+                    
+                    if (currentBet === 0) {
+                        callBtn.textContent = "Check";
+                    } else {
+                        callBtn.textContent = `Call ₹${currentBet - player.totalBet}`;
+                    }
+                    
+                    // Set minimum bet amount
+                    let minBetAmount = currentBet === 0 ? minBet : currentBet * 2;
+                    betAmountInput.min = minBetAmount;
+                    betAmountInput.value = Math.max(minBetAmount, parseInt(betAmountInput.value) || 0);
+                    betAmountInput.max = player.chips;
+                }
+            }
+            
+            // Start a new game
+            function startNewGame() {
+                // Reset game state
+                pot = 0;
+                currentBet = 0;
+                gameActive = true;
+                gameStarted = false;
+                showdown = false;
+                lastRaisePlayer = -1;
+                
+                // Create and shuffle deck
+                deck = createDeck();
+                deck = shuffleDeck(deck);
+                
+                // Initialize players
+                initializePlayers();
+                
+                // Deal cards
+                dealCards();
+                
+                // Collect boot amount from each player
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    players[i].chips -= BOOT_AMOUNT;
+                    players[i].bet = BOOT_AMOUNT;
+                    players[i].totalBet = BOOT_AMOUNT;
+                    pot += BOOT_AMOUNT;
+                }
+                
+                // Choose random starting player (except player 0)
+                currentPlayer = Math.floor(Math.random() * (PLAYER_COUNT - 1)) + 1;
+                
+                // Update UI
+                renderCards();
+                updateUI();
+                
+                addToLog("New game started! Boot amount: ₹" + BOOT_AMOUNT);
+                setGameMessage(`${players[currentPlayer].name}'s turn...`);
+                
+                // Start first bot's turn after a delay
+                setTimeout(playBotTurn, 1000);
+            }
+            
+            // Handle player folding
+            function handleFold() {
+                if (currentPlayer !== 0 || !gameActive) return;
+                
+                players[0].folded = true;
+                addToLog("You folded.");
+                updateUI();
+                
+                // Move to next player
+                nextPlayer();
+            }
+            
+            // Handle player calling
+            function handleCall() {
+                if (currentPlayer !== 0 || !gameActive) return;
+                
+                const player = players[0];
+                const callAmount = currentBet - player.totalBet;
+                
+                if (callAmount > 0) {
+                    player.chips -= callAmount;
+                    player.bet = callAmount;
+                    player.totalBet += callAmount;
+                    pot += callAmount;
+                    addToLog(`You called ₹${callAmount}.`);
+                } else {
+                    addToLog("You checked.");
+                }
+                
+                gameStarted = true;
+                updateUI();
+                
+                // Move to next player
+                nextPlayer();
+            }
+            
+            // Handle player betting/raising
+            function handleBet() {
+                if (currentPlayer !== 0 || !gameActive) return;
+                
+                const player = players[0];
+                const betAmount = parseInt(betAmountInput.value);
+                
+                if (isNaN(betAmount) || betAmount <= 0 || betAmount > player.chips) {
+                    setGameMessage("Invalid bet amount!");
+                    return;
+                }
+                
+                if (currentBet > 0 && betAmount < currentBet * 2) {
+                    setGameMessage(`Minimum raise is ₹${currentBet * 2}!`);
+                    return;
+                }
+                
+                if (currentBet === 0 && betAmount < minBet) {
+                    setGameMessage(`Minimum bet is ₹${minBet}!`);
+                    return;
+                }
+                
+                player.chips -= betAmount;
+                player.bet = betAmount;
+                player.totalBet += betAmount;
+                pot += betAmount;
+                currentBet = player.totalBet;
+                lastRaisePlayer = 0;
+                
+                addToLog(`You bet ₹${betAmount}.`);
+                gameStarted = true;
+                updateUI();
+                
+                // Move to next player
+                nextPlayer();
+            }
+            
+            // Handle player showing cards
+            function handleShow() {
+                if (currentPlayer !== 0 || !gameActive) return;
+                
+                showdown = true;
+                addToLog("You chose to show cards. Proceeding to showdown.");
+                renderCards();
+                
+                // Determine winner
+                determineWinner();
+            }
+            
+            // Move to the next player
+            function nextPlayer() {
+                // Check if only one player is left
+                const activePlayers = players.filter(p => !p.folded);
+                if (activePlayers.length === 1) {
+                    // Last player wins the pot
+                    const winner = activePlayers[0];
+                    winner.chips += pot;
+                    gameActive = false;
+                    
+                    addToLog(`${winner.name} wins ₹${pot}!`);
+                    setGameMessage(`${winner.name} wins ₹${pot}! Everyone else folded.`);
+                    
+                    // End the game
+                    endGame();
+                    return;
+                }
+                
+                // Check if all active players have matched the current bet
+                const allMatched = activePlayers.every(p => p.totalBet === currentBet);
+                if (allMatched && gameStarted) {
+                    if (showdown) {
+                        // If showdown was called, determine the winner
+                        determineWinner();
+                        return;
+                    }
+                    
+                    // If we made a full round back to the last raiser, proceed to showdown
+                    if (currentPlayer === lastRaisePlayer || lastRaisePlayer === -1) {
+                        showdown = true;
+                        addToLog("All bets are matched. Proceeding to showdown.");
+                        renderCards();
+                        
+                        // Determine winner
+                        determineWinner();
+                        return;
+                    }
+                }
+                
+                // Find next active player
+                do {
+                    currentPlayer = (currentPlayer + 1) % PLAYER_COUNT;
+                } while (players[currentPlayer].folded);
+                
+                updateUI();
+                
+                if (players[currentPlayer].isBot) {
+                    setGameMessage(`${players[currentPlayer].name}'s turn...`);
+                    setTimeout(playBotTurn, 1000);
+                } else {
+                    setGameMessage("Your turn! Choose your action.");
+                }
+            }
+            
+            // Bot AI - make decisions for bot players
+            function playBotTurn() {
+                if (!gameActive || !players[currentPlayer].isBot) return;
+                
+                const bot = players[currentPlayer];
+                const callAmount = currentBet - bot.totalBet;
+                const handStrength = evaluateHand(bot.cards);
+                
+                // Bot strategies based on hand strength
+                let action = "";
+                
+                if (bot.folded) {
+                    nextPlayer();
+                    return;
+                }
+                
+                // Randomly decide to see cards
+                if (!bot.seen && Math.random() < 0.7) {
+                    bot.seen = true;
+                    addToLog(`${bot.name} sees their cards.`);
+                }
+                
+                // Strong hand strategy (91%+ percentile)
+                if (handStrength.percentile > 0.91) {
+                    // Strong hand - raise or call
+                    if (Math.random() < 0.8) {
+                        // Raise between 2x and 4x the current bet
+                        let raiseAmount = 0;
+                        if (currentBet === 0) {
+                            raiseAmount = Math.min(bot.chips, minBet * (1 + Math.random() * 3));
+                        } else {
+                            raiseAmount = Math.min(bot.chips, currentBet * (2 + Math.random() * 2));
+                        }
+                        raiseAmount = Math.floor(raiseAmount);
+                        
+                        bot.chips -= raiseAmount;
+                        bot.bet = raiseAmount;
+                        bot.totalBet += raiseAmount;
+                        pot += raiseAmount;
+                        currentBet = bot.totalBet;
+                        lastRaisePlayer = currentPlayer;
+                        
+                        action = `raised to ₹${raiseAmount}`;
+                    } else if (callAmount > 0) {
+                        // Call
+                        bot.chips -= callAmount;
+                        bot.bet = callAmount;
+                        bot.totalBet += callAmount;
+                        pot += callAmount;
+                        
+                        action = `called ₹${callAmount}`;
+                    } else {
+                        action = "checked";
+                    }
+                } 
+                // Medium hand strategy (70-90% percentile)
+                else if (handStrength.percentile > 0.7) {
+                    // Medium strength - call or raise occasionally
+                    if (Math.random() < 0.3) {
+                        // Raise between 1.5x and 2.5x the current bet
+                        let raiseAmount = 0;
+                        if (currentBet === 0) {
+                            raiseAmount = Math.min(bot.chips, minBet * (1 + Math.random()));
+                        } else {
+                            raiseAmount = Math.min(bot.chips, currentBet * (1.5 + Math.random()));
+                        }
+                        raiseAmount = Math.floor(raiseAmount);
+                        
+                        bot.chips -= raiseAmount;
+                        bot.bet = raiseAmount;
+                        bot.totalBet += raiseAmount;
+                        pot += raiseAmount;
+                        currentBet = bot.totalBet;
+                        lastRaisePlayer = currentPlayer;
+                        
+                        action = `raised to ₹${raiseAmount}`;
+                    } else if (callAmount > 0) {
+                        // Call if not too expensive (less than 25% of chips)
+                        if (callAmount <= bot.chips * 0.25) {
+                            bot.chips -= callAmount;
+                            bot.bet = callAmount;
+                            bot.totalBet += callAmount;
+                            pot += callAmount;
+                            
+                            action = `called ₹${callAmount}`;
+                        } else {
+                            bot.folded = true;
+                            action = "folded";
+                        }
+                    } else {
+                        action = "checked";
+                    }
+                } 
+                // Weak hand strategy (below 70% percentile)
+                else {
+                    // Weak hand - fold if bet is high, otherwise check
+                    if (callAmount > bot.chips * 0.15) {
+                        bot.folded = true;
+                        action = "folded";
+                    } else if (callAmount > 0) {
+                        // Sometimes call with weak hand (bluff)
+                        if (Math.random() < 0.3) {
+                            bot.chips -= callAmount;
+                            bot.bet = callAmount;
+                            bot.totalBet += callAmount;
+                            pot += callAmount;
+                            
+                            action = `called ₹${callAmount}`;
+                        } else {
+                            bot.folded = true;
+                            action = "folded";
+                        }
+                    } else {
+                        if (Math.random() < 0.2) {
+                            // Sometimes bluff with a small raise
+                            let raiseAmount = Math.min(bot.chips, minBet);
+                            raiseAmount = Math.floor(raiseAmount);
+                            
+                            bot.chips -= raiseAmount;
+                            bot.bet = raiseAmount;
+                            bot.totalBet += raiseAmount;
+                            pot += raiseAmount;
+                            currentBet = bot.totalBet;
+                            lastRaisePlayer = currentPlayer;
+                            
+                            action = `raised to ₹${raiseAmount}`;
+                        } else {
+                            action = "checked";
+                        }
+                    }
+                }
+                
+                addToLog(`${bot.name} ${action}.`);
+                gameStarted = true;
+                updateUI();
+                
+                // Randomly decide to show cards
+                if (Math.random() < 0.1 && gameStarted && !bot.folded && currentBet > 0) {
+                    showdown = true;
+                    addToLog(`${bot.name} chose to show cards. Proceeding to showdown.`);
+                    renderCards();
+                    
+                    // Determine winner
+                    setTimeout(determineWinner, 1000);
+                } else {
+                    // Move to next player
+                    setTimeout(nextPlayer, 800);
+                }
+            }
+            
+            // Evaluate hand strength and assign a percentile
+            function evaluateHand(cards) {
+                const handRank = getHandRanking(cards);
+                
+                // Use the hand rank value to determine a percentile
+                // Teen Patti ranks from lowest (high card) to highest (trail/set)
+                const percentile = handRank.value / 6;
+                
+                return {
+                    rank: handRank,
+                    percentile: percentile
+                };
+            }
+            
+            // Get card numeric value (for comparing hands)
+            function getCardValue(card) {
+                const valueMap = {
+                    'A': 14,
+                    'K': 13,
+                    'Q': 12,
+                    'J': 11,
+                    '10': 10,
+                    '9': 9,
+                    '8': 8,
+                    '7': 7,
+                    '6': 6,
+                    '5': 5,
+                    '4': 4,
+                    '3': 3,
+                    '2': 2
+                };
+                return valueMap[card.value];
+            }
+            
+            // Get hand ranking for Teen Patti
+            function getHandRanking(cards) {
+                // Sort cards by value in descending order
+                cards = [...cards].sort((a, b) => getCardValue(b) - getCardValue(a));
+                
+                // Check for Trail/Set (three of a kind)
+                if (cards[0].value === cards[1].value && cards[1].value === cards[2].value) {
+                    return { 
+                        name: "Trail/Set", 
+                        value: 6,
+                        highCard: getCardValue(cards[0])
+                    };
+                }
+                
+                // Check for Pure Sequence (straight flush)
+                if (cards[0].suit === cards[1].suit && cards[1].suit === cards[2].suit) {
+                    // Check for straight
+                    const values = cards.map(c => getCardValue(c));
+                    if (
+                        // Regular straight
+                        (values[0] === values[1] + 1 && values[1] === values[2] + 1) ||
+                        // A-2-3 straight
+                        (values[0] === 14 && values[1] === 3 && values[2] === 2)
+                    ) {
+                        return { 
+                            name: "Pure Sequence", 
+                            value: 5,
+                            highCard: values[0]
+                        };
+                    }
+                }
+                
+                // Check for Sequence (straight)
+                const values = cards.map(c => getCardValue(c));
+                if (
+                    // Regular straight
+                    (values[0] === values[1] + 1 && values[1] === values[2] + 1) ||
+                    // A-2-3 straight
+                    (values[0] === 14 && values[1] === 3 && values[2] === 2)
+                ) {
+                    return { 
+                        name: "Sequence", 
+                        value: 4,
+                        highCard: values[0]
+                    };
+                }
+                
+                // Check for Color (flush)
+                if (cards[0].suit === cards[1].suit && cards[1].suit === cards[2].suit) {
+                    return { 
+                        name: "Color", 
+                        value: 3,
+                        highCard: getCardValue(cards[0])
+                    };
+                }
+                
+                // Check for Pair
+                if (cards[0].value === cards[1].value || cards[1].value === cards[2].value || cards[0].value === cards[2].value) {
+                    let pairValue, kicker;
+                    if (cards[0].value === cards[1].value) {
+                        pairValue = getCardValue(cards[0]);
+                        kicker = getCardValue(cards[2]);
+                    } else if (cards[1].value === cards[2].value) {
+                        pairValue = getCardValue(cards[1]);
+                        kicker = getCardValue(cards[0]);
+                    } else {
+                        pairValue = getCardValue(cards[0]);
+                        kicker = getCardValue(cards[1]);
+                    }
+                    
+                    return { 
+                        name: "Pair", 
+                        value: 2,
+                        highCard: pairValue,
+                        kicker: kicker
+                    };
+                }
+                
+                // High Card
+                return { 
+                    name: "High Card", 
+                    value: 1,
+                    highCard: getCardValue(cards[0]),
+                    secondCard: getCardValue(cards[1]),
+                    thirdCard: getCardValue(cards[2])
+                };
+            }
+            
+            // Compare two hands and return the winner
+            function compareHands(hand1, hand2) {
+                const rank1 = getHandRanking(hand1);
+                const rank2 = getHandRanking(hand2);
+                
+                // Compare hand types first
+                if (rank1.value !== rank2.value) {
+                    return rank1.value > rank2.value ? 1 : -1;
+                }
+                
+                // If hand types are the same, compare high cards
+                if (rank1.highCard !== rank2.highCard) {
+                    return rank1.highCard > rank2.highCard ? 1 : -1;
+                }
+                
+                // For pairs, compare kickers
+                if (rank1.value === 2) {
+                    if (rank1.kicker !== rank2.kicker) {
+                        return rank1.kicker > rank2.kicker ? 1 : -1;
+                    }
+                }
+                
+                // For high card, compare second and third cards
+                if (rank1.value === 1) {
+                    if (rank1.secondCard !== rank2.secondCard) {
+                        return rank1.secondCard > rank2.secondCard ? 1 : -1;
+                    }
+                    if (rank1.thirdCard !== rank2.thirdCard) {
+                        return rank1.thirdCard > rank2.thirdCard ? 1 : -1;
+                    }
+                }
+                
+                // If everything is equal, it's a tie
+                return 0;
+            }
+            
+            // Determine the winner of the showdown
+            function determineWinner() {
+                gameActive = false;
+                
+                // Only consider players who haven't folded
+                const activePlayers = players.filter(p => !p.folded);
+                
+                if (activePlayers.length === 1) {
+                    // Only one player left, they win
+                    const winner = activePlayers[0];
+                    winner.chips += pot;
+                    
+                    addToLog(`${winner.name} wins ₹${pot}!`);
+                    setGameMessage(`${winner.name} wins ₹${pot}! Everyone else folded.`);
+                    
+                    // End the game
+                    endGame();
+                    return;
+                }
+                
+                // Compare all active players' hands
+                let winnerIndex = activePlayers[0].id;
+                let winnerHand = getHandRanking(activePlayers[0].cards);
+                
+                for (let i = 1; i < activePlayers.length; i++) {
+                    const playerId = activePlayers[i].id;
+                    const compareResult = compareHands(
+                        players[winnerIndex].cards, 
+                        players[playerId].cards
+                    );
+                    
+                    if (compareResult < 0) {
+                        winnerIndex = playerId;
+                        winnerHand = getHandRanking(players[playerId].cards);
+                    }
+                }
+                
+                // Winner takes the pot
+                players[winnerIndex].chips += pot;
+                
+                addToLog(`${players[winnerIndex].name} wins ₹${pot} with ${winnerHand.name}!`);
+                setGameMessage(`${players[winnerIndex].name} wins ₹${pot} with ${winnerHand.name}!`);
+                
+                // End the game
+                endGame();
+            }
+            
+            // End the current game
+            function endGame() {
+                gameActive = false;
+                
+                // Reset current bets
+                for (let i = 0; i < PLAYER_COUNT; i++) {
+                    players[i].bet = 0;
+                }
+                
+                // Update UI one last time
+                updateUI();
+                
+                // Enable new game button
+                newGameBtn.disabled = false;
+                
+                // Check if any player is out of chips
+                const playersOut = players.filter(p => p.chips <= 0);
+                if (playersOut.length > 0) {
+                    for (const player of playersOut) {
+                        addToLog(`${player.name} is out of chips!`);
+                    }
+                    
+                    if (players[0].chips <= 0) {
+                        setGameMessage("Game over! You're out of chips. Refresh the page to start a new game.");
+                        newGameBtn.disabled = true;
+                    }
+                }
+            }
+            
+            // Set game message
+            function setGameMessage(message) {
+                gameMessageDiv.textContent = message;
+            }
+            
+            // Add message to game log
+            function addToLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log';
+                logEntry.textContent = message;
+                gameLogDiv.appendChild(logEntry);
+                gameLogDiv.scrollTop = gameLogDiv.scrollHeight;
+            }
+            
+            // Adjust bet amount
+            function increaseBet() {
+                const current = parseInt(betAmountInput.value) || 0;
+                const step = 10;
+                betAmountInput.value = Math.min(players[0].chips, current + step);
+            }
+            
+            function decreaseBet() {
+                const current = parseInt(betAmountInput.value) || 0;
+                const step = 10;
+                const minBetValue = currentBet === 0 ? minBet : currentBet * 2;
+                betAmountInput.value = Math.max(minBetValue, current - step);
+            }
+            
+            // Event listeners
+            newGameBtn.addEventListener('click', startNewGame);
+            foldBtn.addEventListener('click', handleFold);
+            callBtn.addEventListener('click', handleCall);
+            betBtn.addEventListener('click', handleBet);
+            showBtn.addEventListener('click', handleShow);
+            increaseBetBtn.addEventListener('click', increaseBet);
+            decreaseBetBtn.addEventListener('click', decreaseBet);
+            
+            // Initialize UI
+            updateUI();
+            
+            // Welcome message
+            addToLog("Welcome to Teen Patti! Press 'New Game' to start playing.");
+        });
+    </script>
+</body>
+</html>
